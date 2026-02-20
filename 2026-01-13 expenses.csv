@@ -1,0 +1,13 @@
+Date,Amount,Category,Description
+2025-11-17 06:33:55,10.5,food,lunch
+2026-01-01 06:34:02,20.0,food,brunch
+2026-01-17 06:34:12,30.06,transport,uber
+2024-01-7 06:34:24,40.0,transport,gas
+2025-11-17 06:34:37,50.25,entertainment,movies
+2026-01-7 06:34:52,60.0,entertainment,golf
+2025-11-7 06:35:03,70.0,bills,power
+2026-04-7 06:35:11,80.0,bills,cable
+2024-04-17 06:35:21,1290.0,other,tv
+2025-11-17 06:35:21,90.0,other,ER visit
+2026-01-17 06:35:33,101.99,other,donation
+2026-01-13 08:34:12,2999.0,other,car purchase

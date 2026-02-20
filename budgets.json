@@ -1,0 +1,18 @@
+[
+    {
+        "category": "entertainment",
+        "amount": 100.0
+    },
+    {
+        "category": "bills",
+        "amount": 13.0
+    },
+    {
+        "category": "other",
+        "amount": 12.0
+    },
+    {
+        "category": "transport",
+        "amount": 460.0
+    }
+]
