@@ -30,7 +30,7 @@
         "description": "movies"
     },
     {
-        "date": "2026-01-7 06:34:52",
+        "date": "2026-02-7 06:34:52",
         "amount": 60.0,
         "category": "entertainment",
         "description": "golf"
@@ -42,7 +42,7 @@
         "description": "power"
     },
     {
-        "date": "2026-04-7 06:35:11",
+        "date": "2025-04-7 06:35:11",
         "amount": 80.0,
         "category": "bills",
         "description": "cable"
@@ -60,13 +60,13 @@
         "description": "ER visit"
     },
     {
-        "date": "2026-01-17 06:35:33",
+        "date": "2026-02-17 06:35:33",
         "amount": 101.99,
         "category": "other",
         "description": "donation"
     },
     {
-        "date": "2026-01-13 08:34:12",
+        "date": "2026-02-19 08:34:12",
         "amount": 2999.0,
         "category": "other",
         "description": "car purchase"

@@ -31,7 +31,7 @@ try:
         budgets = json.load(file)
 except FileNotFoundError:
     print("Budgets file not found. Blank list created.")
-    budgets = [] # makes an empty list
+    budgets = []
 except json.JSONDecodeError:
     print("Issue loading Budgets file. File empty or invalid JSON file. Blank Budgets list created.")
     budgets = []
@@ -42,7 +42,7 @@ except PermissionError:
     print("Need permission to access Budgets file. Blank Budgets list created.")
     budgets = []
 
- #-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
 #   opening savings goal json file
 #-----------------------------------------------------------------------
 try:
@@ -50,7 +50,7 @@ try:
         saving_goal = json.load(file)
 except FileNotFoundError:
     print("Savings file not found. Blank list created.")
-    saving_goal = [] # makes an empty list
+    saving_goal = []
 except json.JSONDecodeError:
     print("Issue loading Savings file. File empty or invalid JSON file. Blank Savings list created.")
     saving_goal = []
@@ -74,8 +74,6 @@ def datetime_now_stamp():
 # importing time delta to allow time change functions
 from datetime import datetime,timedelta
 
-
-
 #-----------------------------------------------------------------------
 #   showing menu
 #-----------------------------------------------------------------------
@@ -96,8 +94,7 @@ def show_menu():
     print("[10] Set Saving Goals")
     print("[11] View Monthly Report")
     print("[12] View Spending Trend")
-    print("[13] Export to CSV")
-    
+    print("[13] Export to CSV")    
 
 #-----------------------------------------------------------------------
 #   option [1] Add Expense
@@ -106,11 +103,10 @@ def add_expense():
     while True:        
         try:
             amount = float(input("Enter the amount: "))
-            break            
-
+            break          
         except ValueError:
             print("Invalid number. Please try again.")
-                   
+
 # note valid answers should be case sensive of how we want stored. user input can be converted.
     valid_category = ["food", "transport", "entertainment", "bills", "other"]
     while True:
@@ -120,10 +116,9 @@ def add_expense():
             break
         else:
             print("Invalid Category. Please try again.")
-              
 
     description = input("Enter description: ")    
-   
+
     #make gen expense dictionary
     # dont capitalize keys here to display them capitalized in table. otherwise the terms will have to be capilized everywhere.
     expense_item = {
@@ -155,8 +150,7 @@ def add_up_expenses():
     total_expenses = sum(expense["amount"] for expense in expenses)    
     #print("${:.2f}".format(total_expenses))
     return(total_expenses)
-    write_JSON()
-
+    
 #-----------------------------------------------------------------------
 #   option [4] View All Time Totals By Category
 #-----------------------------------------------------------------------
@@ -175,7 +169,7 @@ def view_categories():
         cat_totals_list.append([category, total]) 
 
     total_expenses = sum(expense["amount"] for expense in expenses)
-   # adding a totals row
+    # adding a totals row
     cat_totals_list.append(["total", total_expenses])
     
     # note tabulate works for lists or multiple dictionaries. doesnt work with one dictionary.
@@ -183,9 +177,7 @@ def view_categories():
 
     # note the list created appended items as one list (category, total). can define headers here because there are no key now.
     print(tabulate(cat_totals_list,headers = headers, tablefmt="grid")) #note headers can just be replaced with ["Category","Totals"] here
-    write_JSON()
-   
-    
+    write_json()    
 
 
 #-----------------------------------------------------------------------
@@ -194,11 +186,11 @@ def view_categories():
 # menue item search triggers a function. asks user for search term. creates a temp list in function based on that term and displays a table with results.
 def search_expenses():
     search_term = input("Enter description search term: ").lower()
-      
+
     searched_list = [expense for expense in expenses if search_term in expense['description'].lower()]   
     #print(searched_list)    
     print(tabulate(searched_list,headers = "keys", tablefmt="grid"))
-    write_JSON()
+    write_json()
 
 #-----------------------------------------------------------------------
 #   option [6] View last [x] days
@@ -213,7 +205,7 @@ def view_recent():
                     
         except ValueError:
             print("Invalid entry. Please try again.")
-       
+
     recent = []
     for expense in expenses:
         expense_date = datetime.strptime(expense['date'], "%Y-%m-%d %H:%M:%S")
@@ -224,15 +216,13 @@ def view_recent():
 
 #need to add up those recent expenses and add total to list and table    
     recent_total = (sum(expense["amount"] for expense in recent))
-   # return(recent_total)
+    
     recent_total_dict = {"date":'total',"amount":recent_total,"category":"","description":""}
     recent.append(recent_total_dict)
-    #recent.append(["Total", 'recent_total', '', ''])
-   # recent.append(sum(expense["amount"] for expense in recent))   
     
     #print(recent)
     print(tabulate(recent,headers = "keys", tablefmt="grid"))
-    write_JSON()
+    write_json()
 
 #-----------------------------------------------------------------------
 #   option [7] Delete an Expense
@@ -263,7 +253,7 @@ def delete_expense():
                 removed_expense = expenses.pop(choice-1)   #list still starts with 0 even if enumerate was directed to start with 1
                 removed_expense_list.append(removed_expense)                               
                 print(tabulate(removed_expense_list,headers = "keys", tablefmt="grid"))
-                write_JSON()
+                write_json()
                 break
             else:
                 print("Number out of range. Please try again.")           
@@ -296,7 +286,7 @@ def set_category_budget():
                 if budget["category"] == category:
                     flag = budget # this sets the dictionary item (budget) to the variable flag
                     break                   
-                   
+
 # overide or use existing budget. used when variable flag is activated
     
     if flag:
@@ -309,10 +299,10 @@ def set_category_budget():
         # note that category is just a word IE food. budget is the dictionary item.
                 break # return here would skip next loop of adding amount.
 
-     # note .pop looks for integer or index to remove, not string.                
+    # note .pop looks for integer or index to remove, not string.                
             elif answer == "continue":
                 return
-     # note break would end the loop but continue to while loop of adding budget amount.
+    # note break would end the loop but continue to while loop of adding budget amount.
             else:
                 print("Invalid option. Please try again.")
         
@@ -334,7 +324,7 @@ def set_category_budget():
     
     budgets.append(cat_budget)  
         
-    write_budget_JSON()
+    write_budget_json()
 
 #-----------------------------------------------------------------------
 #   function to put current months expenses in a list
@@ -347,7 +337,7 @@ def current_month_expenses():
     
         expense_date = (expense['date'])[:7]              
         month_now = date_string[:7] # shows 7 digits including dashes "2024-01"
-       
+
         if expense_date == month_now:
             month_expenses.append(expense)
     return month_expenses
@@ -363,8 +353,7 @@ def category_totals():
     for expense in month_expenses:
         category = expense['category']
         if category in month_category_totals:
-            month_category_totals[category] += expense['amount']
-            
+            month_category_totals[category] += expense['amount']            
         else:
             month_category_totals[category] = expense['amount']
     return month_category_totals
@@ -377,11 +366,11 @@ def category_totals():
 def view_category_budget():
     print("Monthly Budget Stats")      
     month_expenses = current_month_expenses()
-    #gives month_expenses list []
+    # gives month_expenses list []
 
     month_category_totals = category_totals()
     #gives month_category_totals dict {}
-                      
+
     all_category = ["food", "transport", "entertainment", "bills", "other"]
             
     budget_stats = []  
@@ -414,8 +403,7 @@ def view_category_budget():
             
         budget_stats.append(stats_dict)           
     return(budget_stats)
-    # print(tabulate(budget_stats,headers = "keys", tablefmt="grid"))        
-    write_budget_JSON()
+    
 
 #-----------------------------------------------------------------------
 #   option [10] set savings goals
@@ -436,16 +424,14 @@ def set_saving_goal():
 
             if answer == "override":
                 saving_goal.clear()
-                break 
-                     
+                break
             elif answer == "continue":
                 return
-     
             else:
                 print("Invalid option. Please try again.")
     
     print("Chickens will grow every month ($100 or more) goal is met. Chikens reset Jan 1st.")
-     # input savings goal amount 
+    # input savings goal amount 
     while True:        
         try:
             amount = float(input("Enter monthly saving goal: "))
@@ -467,11 +453,11 @@ def set_saving_goal():
 
         
     saving_goal.append(amount)  
-       
-    write_savings_JSON()
+
+    write_savings_json()
     
     #print(" 🥐 🥚 🦋 🐛 🦠 🐓 🍏 🥬 🐣 🐥 🐤")
-#goal is for how much money to save in all categories each month. savings = remaining. can try to grow a animal based on increments of $ saved. print message that animal will grow when $x is saved. function also only works only if all budgets are set.
+    #goal is for how much money to save in all categories each month. savings = remaining. can try to grow a animal based on increments of $ saved. print message that animal will grow when $x is saved. function also only works only if all budgets are set.
 
 
 
@@ -481,6 +467,12 @@ def set_saving_goal():
 def monthly_report():
     month_expenses = current_month_expenses()
     #gives month_expenses list []
+
+    if month_expenses:
+        pass
+    else:
+        print("No expenses this month")
+        return
 
     month_category_totals = category_totals()
     #gives month_category_totals dict {}
@@ -510,9 +502,9 @@ def monthly_report():
 
     headers = ["Current Month Expenses",""]
             
-    print(tabulate(expense_stats_list,headers = headers, tablefmt="grid")) # not printing headers. dont need headers        
+    print(tabulate(expense_stats_list,headers = headers, tablefmt="grid"))       
 
-  #-----------------------------------------------------------------------  
+#-----------------------------------------------------------------------  
     print("")
     print("Category Totals and Percentages of Total Spent")
     
@@ -524,19 +516,18 @@ def monthly_report():
             "total spent" : total_spent,    # note .get works with dictionary but not with list directly        
             "perc of total" : f"{(total_spent/total_expenses)*100 if total_expenses else 0:.0f}%"        
         }       
-          
+
         category_stats.append(stats_dict)           
-   
+
     print(tabulate(category_stats,headers = "keys", tablefmt="grid"))                       
-     
+
     #-----------------------------------------------------------------------
     top_expenses = sorted_expenses[0:5]
     print("")
     print("Top 5 Expenses")
     print(tabulate(top_expenses,headers = "keys", tablefmt="grid"))              
             
-    write_JSON()
-
+    write_json()
 
 #-----------------------------------------------------------------------
 #   option [12] View spending trend
@@ -555,7 +546,7 @@ def run_spending_trend():
 
     print("")
     print("Spending Trend")
-   
+
     spending_trend = []
     for month in unique_months:        
         month_total = sum(expense_item["amount"] for expense_item in expenses if month == expense_item["date"][:7])
@@ -568,11 +559,10 @@ def run_spending_trend():
             "total" : f"${month_total:.2f}",
             "trend (each represents $50)" : bar
         }
-        spending_trend.append(trend)
-    
+        spending_trend.append(trend)    
     
     print(tabulate(spending_trend,headers = "keys", tablefmt="grid"))      
- 
+
 
 #-----------------------------------------------------------------------
 #   option [13] CSV export
@@ -587,13 +577,11 @@ def CSV_export():
     file_path = os.path.abspath('2026-01-13 expenses.csv')
     print(f"CSV file exported to:\n{file_path}")
 
-    #current_directory = os.getcwd()
-    #print(f"current working directory:", current_directory)
 
 #-----------------------------------------------------------------------
 #   function to write to expenses json
 #-----------------------------------------------------------------------
-def write_JSON():
+def write_json():
     with open('expenses.json', 'w') as file:
         json.dump(expenses, file, indent=4)
         # note expenses is just variable name not specific. text is used often
@@ -601,14 +589,14 @@ def write_JSON():
 #-----------------------------------------------------------------------
 #   function to write to budgets json
 #-----------------------------------------------------------------------
-def write_budget_JSON():
+def write_budget_json():
     with open('budgets.json', 'w') as file:
         json.dump(budgets, file, indent=4)
 
 #-----------------------------------------------------------------------
 #   function to write to savings json
 #-----------------------------------------------------------------------
-def write_savings_JSON():
+def write_savings_json():
     with open('saving_goal.json', 'w') as file:
         json.dump(saving_goal, file, indent=4)       
 
@@ -621,7 +609,7 @@ while True:
     option = input("\nSelect Option: ")    
     if option == '1':
         add_expense()
-        write_JSON()       
+        write_json()       
     elif option == '2':
         view_expenses()
     elif option == '3':
@@ -640,8 +628,8 @@ while True:
         set_category_budget()
     elif option == '9':        
         budget_stats = view_category_budget()
-        print(tabulate(budget_stats,headers = "keys", tablefmt="grid"))        
-        write_budget_JSON()
+        print(tabulate(budget_stats,headers = "keys", tablefmt="fancy_grid"))        
+        write_budget_json()
     elif option == '10':
         set_saving_goal()
     elif option == '11':
@@ -651,10 +639,10 @@ while True:
     elif option == '13':
         CSV_export()   
     elif option == '0':        
-        write_JSON()
-        write_budget_JSON()     
+        write_json()
+        write_budget_json()     
         print("Goodbye.")
         break
     else:
-         print("Invalid action. Please try again.")
+        print("Invalid action. Please try again.")
 
