@@ -3,6 +3,7 @@ from tabulate import tabulate
 import json
 import csv
 import os
+from colorama import Fore, Style, init
 
 #-----------------------------------------------------------------------
 #   opening expenses json file
@@ -46,20 +47,20 @@ except PermissionError:
 #   opening savings goal json file
 #-----------------------------------------------------------------------
 try:
-    with open('saving_goal.json', 'r') as file:
-        saving_goal = json.load(file)
+    with open('saving_goals.json', 'r') as file:
+        saving_goals = json.load(file)
 except FileNotFoundError:
-    print("Savings file not found. Blank list created.")
-    saving_goal = []
+    print("Goals file not found. Goal set to default zero.")
+    saving_goals = {"month_goal": 0}
 except json.JSONDecodeError:
-    print("Issue loading Savings file. File empty or invalid JSON file. Blank Savings list created.")
-    saving_goal = []
+    print("Issue loading Goals file. File empty or invalid JSON file. Goal set to default zero.")
+    saving_goals = {"month_goal": 0}
 except ValueError:
-    print("Invalid Savings item. Blank list created.")
-    saving_goal = []
+    print("Invalid Goals item. Goal set to default zero.")
+    saving_goals = {"month_goal": 0}
 except PermissionError:
-    print("Need permission to access Savings file. Blank Savings list created.")
-    saving_goal = []
+    print("Need permission to access Goals file. Goal set to default zero.")
+    saving_goals = {"month_goal": 0}
 
 #-----------------------------------------------------------------------
 #   timestamp
@@ -91,10 +92,10 @@ def show_menu():
     print("[7] Delete an Expense")
     print("[8] Set Category Budget")
     print("[9] View Category Budget Stats")
-    print("[10] Set Saving Goals")
+    print("[10] Monthly Saving Goals")
     print("[11] View Monthly Report")
     print("[12] View Spending Trend")
-    print("[13] Export to CSV")    
+    print("[13] Export expenses to CSV")    
 
 #-----------------------------------------------------------------------
 #   option [1] Add Expense
@@ -406,60 +407,74 @@ def view_category_budget():
     
 
 #-----------------------------------------------------------------------
-#   option [10] set savings goals
+#   calculate and display savings goal status
 #----------------------------------------------------------------------- 
-#default savings = [] list made at the top
-def set_saving_goal():
-    budget_stats = view_category_budget()
-    print(tabulate(budget_stats,headers = "keys", tablefmt="grid")) 
+def display_savings_goal_status():
+    month_expenses = current_month_expenses()
+    total_spent = sum(expense["amount"] for expense in month_expenses)
+
+    current_goal = saving_goals["month_goal"]
+
+    print("Monthly Savings Goal Status")
+
+    if current_goal == 0:
+        print("No savings goal set.")
+        return
     
-    #print(f"🐓🐥🐣🥚 Goal to Grow Your Dough 🥚🐣🐥🐓")
-    print(f"Current monthly budgets")
-    #view_category_budget()
-    print(tabulate(budgets,headers = "keys", tablefmt="grid"))
-    if saving_goal:
-        print(f"Current monthly saving goal is ${saving_goal[0]}.")
+    # return ends function if no goal
+    
+    remaining = current_goal - total_spent
+    print(f'Amount spent this month: ${total_spent:.2f}')
+
+    if remaining > 0:
+        print(Fore.GREEN + f'✅  Great job. Spending is ${remaining:.2f} under budget.' + Style.RESET_ALL)
+    else:
+        print(Fore.RED + f'⚠️  You have some improving to do. Spending is ${remaining:.2f} over budget.' + Style.RESET_ALL)
+
+
+
+#-----------------------------------------------------------------------
+#   option [10] monthly savings goals
+#----------------------------------------------------------------------- 
+# default saving_goals = [] list made at the top
+
+
+def set_saving_goals():
+
+    # display goal status
+    display_savings_goal_status()
+
+    current_goal = saving_goals["month_goal"]
+
+    # if goal exists ask questions
+    if saving_goals["month_goal"] > 0:
+        print(f'Current monthly saving goal is ${current_goal:.2f}')
+
         while True:            
             answer = input("Override or Continue with goal?: ").lower()
 
             if answer == "override":
-                saving_goal.clear()
+                saving_goals.clear()
                 break
             elif answer == "continue":
                 return
             else:
-                print("Invalid option. Please try again.")
+                print("Invalid option. Please try again.")    
     
-    print("Chickens will grow every month ($100 or more) goal is met. Chikens reset Jan 1st.")
     # input savings goal amount 
     while True:        
         try:
-            amount = float(input("Enter monthly saving goal: "))
-            print(f" ${amount} goal entered.")
+            saving_goals["month_goal"] = float(input("Enter monthly saving goal: "))
+            print(f' ${saving_goals["month_goal"]} goal entered.')
             break            
 
         except ValueError:
             print("Invalid number. Please try again.")
 
-    #total_expenses = sum(expense["amount"] for expense in month_expenses)
-    #savings = sum(item["remaining"] for item in budget_stats)
-    remaining = budget_stats["remaining}"]
-    
-    goal_met = remaining >= saving_goal
-    print(goal_met)
-    
-
-
-
-        
-    saving_goal.append(amount)  
-
     write_savings_json()
-    
-    #print(" 🥐 🥚 🦋 🐛 🦠 🐓 🍏 🥬 🐣 🐥 🐤")
-    #goal is for how much money to save in all categories each month. savings = remaining. can try to grow a animal based on increments of $ saved. print message that animal will grow when $x is saved. function also only works only if all budgets are set.
 
-
+    # display new goal status
+    display_savings_goal_status()
 
 #-----------------------------------------------------------------------
 #   option [11] View monthly report
@@ -565,18 +580,21 @@ def run_spending_trend():
 
 
 #-----------------------------------------------------------------------
-#   option [13] CSV export
+#   option [13] CSV export expenses
 #-----------------------------------------------------------------------  
-def CSV_export():
+def csv_export():
 
-    with open('2026-01-13 expenses.csv', 'w') as file:
+    now = datetime.now()
+    date_string = now.strftime("%Y-%m-%d %H:%M:%S")     
+    date_now = date_string[:10]
+
+    with open(f'{date_now} expenses.csv', 'w') as file:
         file.write("Date,Amount,Category,Description\n")
         for expense in expenses:
             file.write(f"{expense['date']},{expense['amount']},{expense['category']},{expense['description']}\n")
     
-    file_path = os.path.abspath('2026-01-13 expenses.csv')
+    file_path = os.path.abspath(f'{date_now} expenses.csv')
     print(f"CSV file exported to:\n{file_path}")
-
 
 #-----------------------------------------------------------------------
 #   function to write to expenses json
@@ -597,8 +615,8 @@ def write_budget_json():
 #   function to write to savings json
 #-----------------------------------------------------------------------
 def write_savings_json():
-    with open('saving_goal.json', 'w') as file:
-        json.dump(saving_goal, file, indent=4)       
+    with open('saving_goals.json', 'w') as file:
+        json.dump(saving_goals, file, indent=4)       
 
 #-----------------------------------------------------------------------
 #   # while loop to get user input
@@ -631,13 +649,13 @@ while True:
         print(tabulate(budget_stats,headers = "keys", tablefmt="fancy_grid"))        
         write_budget_json()
     elif option == '10':
-        set_saving_goal()
+        set_saving_goals()
     elif option == '11':
         monthly_report()
     elif option == '12':
         run_spending_trend()
     elif option == '13':
-        CSV_export()   
+        csv_export()   
     elif option == '0':        
         write_json()
         write_budget_json()     
