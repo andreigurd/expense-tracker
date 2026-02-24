@@ -1,4 +1,4 @@
-#python 
+
 from tabulate import tabulate
 import json
 import csv
@@ -140,9 +140,7 @@ def view_expenses():
     
     print("Your Expenses:")      
     print(tabulate(expenses,headers="keys", tablefmt="grid"))
-    # note key without s does not work for headers.
-    # dont capitalize keys where they are defined in expense_item dictionary. find a way to display them capitalized somehow else.
-
+    
 #-----------------------------------------------------------------------
 #   option [3] View Total
 #-----------------------------------------------------------------------
@@ -281,14 +279,14 @@ def set_category_budget():
             print("Invalid category. Please try again.")
 
 # check if budget exists to avoid duplicates. 
-# note answer doesnt exist if continue is selected. need a cause and effect flag.
+
     flag = None
-    for budget in budgets:       # for goes through each item. else not needed.         
+    for budget in budgets:              
                 if budget["category"] == category:
-                    flag = budget # this sets the dictionary item (budget) to the variable flag
+                    flag = budget
                     break                   
 
-# overide or use existing budget. used when variable flag is activated
+# overide or use existing budget.
     
     if flag:
         print(f" A monthly budget of ${flag['amount']} already exists for {category} category.")
@@ -297,13 +295,13 @@ def set_category_budget():
 
             if answer == "override":
                 budgets.remove(flag) 
-        # note that category is just a word IE food. budget is the dictionary item.
+        
                 break # return here would skip next loop of adding amount.
 
-    # note .pop looks for integer or index to remove, not string.                
+                    
             elif answer == "continue":
                 return
-    # note break would end the loop but continue to while loop of adding budget amount.
+    
             else:
                 print("Invalid option. Please try again.")
         
@@ -337,7 +335,7 @@ def current_month_expenses():
         date_string = now.strftime("%Y-%m-%d %H:%M:%S")       
     
         expense_date = (expense['date'])[:7]              
-        month_now = date_string[:7] # shows 7 digits including dashes "2024-01"
+        month_now = date_string[:7]
 
         if expense_date == month_now:
             month_expenses.append(expense)
@@ -386,8 +384,8 @@ def view_category_budget():
         if budget == 0:
             stats_dict = {
         "category" : category,
-        "budget" : "No Budget", # note that .get wont work on list even if list has dictionaries. need to loop through list
-        "spent" : spent,    # note .get works with dictionary but not with list directly
+        "budget" : "No Budget", 
+        "spent" : spent,    
         "remaining" : "N/A",
         "perc used" : "N/A",
         "status" : "N/A"
@@ -395,8 +393,8 @@ def view_category_budget():
         else:
             stats_dict = {
         "category" : category,
-        "budget" : f"${budget:.2f}", # note that .get wont work on list even if list has dictionaries. need to loop through list
-        "spent" : f"${spent:.2f}",    # note .get works with dictionary but not with list directly
+        "budget" : f"${budget:.2f}", 
+        "spent" : f"${spent:.2f}",    
         "remaining" : f"${budget - spent if budget else 0:.2f}",
         "perc used" : f"{(spent / budget)*100 if budget else 0:.0f}%",
         "status" : "✅" if spent < budget else "⚠️"
@@ -437,7 +435,6 @@ def display_savings_goal_status():
 #   option [10] monthly savings goals
 #----------------------------------------------------------------------- 
 # default saving_goals = [] list made at the top
-
 
 def set_saving_goals():
 
@@ -528,7 +525,7 @@ def monthly_report():
         total_spent = month_category_totals.get(category, 0)
         stats_dict = {
             "category" : category,        
-            "total spent" : total_spent,    # note .get works with dictionary but not with list directly        
+            "total spent" : total_spent,           
             "perc of total" : f"{(total_spent/total_expenses)*100 if total_expenses else 0:.0f}%"        
         }       
 
@@ -553,11 +550,9 @@ def run_spending_trend():
     for expense in expenses:
         expense_date = (expense["date"])[:7]
         months_dict = {"date" : expense_date}
-        expense_months.append(expense_date)
+        expense_months.append(expense_date)    
     
-    #print(expense_months)
     unique_months = sorted(set(expense_months))
-    #print(unique_months)
 
     print("")
     print("Spending Trend")
@@ -566,7 +561,7 @@ def run_spending_trend():
     for month in unique_months:        
         month_total = sum(expense_item["amount"] for expense_item in expenses if month == expense_item["date"][:7])
         
-        increment = int(month_total/50) # note this needs to be integer to mulitply by character
+        increment = int(month_total/50)
         bar = ("█")*increment
 
         trend = {
